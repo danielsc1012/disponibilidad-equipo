@@ -55,7 +55,11 @@
           "nombre": "Andrey Avila"
         },
         {
-          "nombre": "Asalia Vega"
+          "nombre": "Asalia Vega",
+          "alias": [
+            "Asalia Lopez"
+          ],
+          "pco_id": "44872044"
         },
         {
           "nombre": "Diana Valenzuela"
