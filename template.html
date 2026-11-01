@@ -364,6 +364,9 @@ const people=DATA.p.map((p,i)=>{
   });
   return {...p,i,map};
 });
+// orden alfabético por apellido (ignora Jr./Sr.), luego por nombre
+const lastName=n=>{const w=n.replace(/[.,]/g,'').split(/\s+/).filter(x=>!/^(jr|sr|ii|iii|iv)$/i.test(x));return w.length>1?w[w.length-1]:w[0]||'';};
+people.sort((a,b)=>lastName(a.n).localeCompare(lastName(b.n),'es',{sensitivity:'base'})||a.n.localeCompare(b.n,'es',{sensitivity:'base'}));
 const GROUPS=DATA.groups.map((n,i)=>({n,i,short:n.replace(/^Equipo\s+/i,''),count:people.filter(p=>p.g===i).length})).filter(g=>g.count);
 let gsel=store.get('g',-1); if(!GROUPS.some(g=>g.i===gsel))gsel=-1;
 const shownGroups=()=>gsel<0?GROUPS:GROUPS.filter(g=>g.i===gsel);
