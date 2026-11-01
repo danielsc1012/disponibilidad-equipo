@@ -1,0 +1,24 @@
+{
+  "_nota": "Quién aparece en la página. 'nombre' = como aparece en Planning Center; 'alias' = otros nombres posibles; 'pco_id' (opcional) fija a la persona si el nombre es ambiguo.",
+  "grupos": [
+    {
+      "nombre": "Equipo Pastoral",
+      "personas": [
+        { "nombre": "Eduardo Gonzalez" },
+        { "nombre": "Kathya Gonzalez", "alias": ["Kathya Garro"] },
+        { "nombre": "Daniel Chaves" },
+        { "nombre": "Andrea Chaves", "alias": ["Andrea Garro"] },
+        { "nombre": "Israel Pereira" },
+        { "nombre": "Karelys Pereira" },
+        { "nombre": "Roy Reyes Jr." },
+        { "nombre": "Jasmina Reyes" },
+        { "nombre": "Raphael Serrano" },
+        { "nombre": "Myraida Lopez", "alias": ["Myraida Serrano"] }
+      ]
+    },
+    {
+      "nombre": "Equipo Ministerial",
+      "personas": []
+    }
+  ]
+}

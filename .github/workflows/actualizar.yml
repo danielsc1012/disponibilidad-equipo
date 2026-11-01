@@ -1,0 +1,66 @@
+name: Actualizar disponibilidad
+
+on:
+  schedule:
+    - cron: "23 9 * * *"   # todos los días 5:23 am (hora del Este en verano; 4:23 am en invierno)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: disponibilidad-equipo
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verificar secretos
+        env:
+          PCO_APP_ID: ${{ secrets.PCO_APP_ID }}
+          PCO_SECRET: ${{ secrets.PCO_SECRET }}
+          PORTAL_PASSWORD: ${{ secrets.PORTAL_PASSWORD }}
+        run: |
+          for v in PCO_APP_ID PCO_SECRET PORTAL_PASSWORD; do
+            if [ -z "${!v}" ]; then echo "::error::Falta el secreto $v"; exit 1; fi
+          done
+      - name: Leer Planning Center y generar la página
+        env:
+          PCO_APP_ID: ${{ secrets.PCO_APP_ID }}
+          PCO_SECRET: ${{ secrets.PCO_SECRET }}
+          DISP_OUT: ${{ runner.temp }}/index.html
+        run: python build.py
+      - name: Cifrar con contraseña
+        env:
+          STATICRYPT_PASSWORD: ${{ secrets.PORTAL_PASSWORD }}
+        run: |
+          # Salt fijo (no es secreto): así "Recordarme" sigue funcionando después de cada actualización diaria
+          npx --yes staticrypt@3.5.4 "$RUNNER_TEMP/index.html" -d _site --short -c false --remember 30 -s c11888e9d01edd4fbab3ea716fc46c55 \
+            --template-title "Disponibilidad del Equipo" \
+            --template-instructions "Iglesia Northwood · Acceso solo para el equipo pastoral y ministerial." \
+            --template-button "Entrar" --template-placeholder "Contraseña" \
+            --template-remember "Recordarme en este equipo" --template-error "Contraseña incorrecta" \
+            --template-color-primary "#00898b" --template-color-secondary "#f5f6f6"
+          rm -f "$RUNNER_TEMP/index.html"
+          if ! grep -q "staticrypt" _site/index.html; then echo "::error::La página no quedó cifrada; no se publica."; exit 1; fi
+          printf 'User-agent: *\nDisallow: /\n' > _site/robots.txt
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

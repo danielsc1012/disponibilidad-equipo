@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Disponibilidad del Equipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+/* Encabezado → resumen (domingo / miércoles / próximas 4 semanas) → filtro de grupo → pestañas */
+:root{
+  --bg:#f5f6f6; --surface:#ffffff; --fg:#1c1e1e; --body:#4a4d4d; --muted:#6e7272; --line:#dcdede; --track:#eceeee;
+  --teal:#00babc; --teal-ink:#00696b; --teal-soft:#e6f8f8; --on-teal:#062b2b; --col:#f0fafa;
+  --out:#f15d2c; --out-soft:#fdebe4; --out-ink:#a03c16; --on-out:#ffffff; --ev:#2b9fe0; --ev-soft:#e3f3fc; --ev-ink:#0b5d8c; --shadow:0 1px 2px rgba(0,0,0,.04);
+  --display:"League Spartan","Helvetica Neue",Arial,sans-serif;
+  --body-font:"Montserrat","Helvetica Neue",Arial,sans-serif; --logo:#000;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141616; --surface:#1c1e1e; --fg:#f0f2f2; --body:#c9cdcd; --muted:#9a9d9d; --line:#2f3333; --track:#262a2a;
+  --teal:#00babc; --teal-ink:#5fd6d7; --teal-soft:#0f3233; --on-teal:#062b2b; --col:#172424;
+  --out:#ff7a4d; --out-soft:#3a1d12; --out-ink:#ffa07f; --on-out:#1c1e1e; --ev:#5cbef3; --ev-soft:#10293a; --ev-ink:#8fd2f7; --shadow:none; --logo:#fff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141616; --surface:#1c1e1e; --fg:#f0f2f2; --body:#c9cdcd; --muted:#9a9d9d; --line:#2f3333; --track:#262a2a;
+  --teal:#00babc; --teal-ink:#5fd6d7; --teal-soft:#0f3233; --on-teal:#062b2b; --col:#172424;
+  --out:#ff7a4d; --out-soft:#3a1d12; --out-ink:#ffa07f; --on-out:#1c1e1e; --ev:#5cbef3; --ev-soft:#10293a; --ev-ink:#8fd2f7; --shadow:none; --logo:#fff; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body-font);font-size:15px;line-height:1.5;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px)) 80px}
+.top{height:6px;background:var(--teal);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)))}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding-block:22px 18px}
+header svg{height:30px;width:auto;flex:none}
+header svg g{fill:var(--logo)}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-ink);font-weight:600}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,6vw,42px);line-height:1;margin:6px 0 0;letter-spacing:-.01em}
+.lede{color:var(--body);margin:8px 0 0;max-width:66ch;font-size:14px}
+.stamp{font-size:12.5px;color:var(--muted);margin-top:6px}
+.demo{background:var(--out-soft);color:var(--out-ink);font-weight:600;font-size:13px;padding:8px 12px;border-radius:6px;margin:0 0 14px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:4px 0 18px}
+@media (max-width:620px){.kpis{grid-template-columns:1fr 1fr}.kpis .kpi:last-child{grid-column:1/-1}}
+.kpi{font:inherit;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer;color:var(--fg)}
+.kpi:hover{border-color:var(--teal)}
+.kpi .n{font-family:var(--display);font-weight:700;font-size:32px;line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi .n.has{color:var(--out-ink)}
+.kpi .l{font-size:12.5px;color:var(--body);font-weight:500;margin-top:2px}
+.kpi .s{font-size:11.5px;color:var(--muted)}
+.bar2{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tabs{display:flex;gap:4px;overflow-x:auto;max-width:100%}
+.tabs button{font:inherit;font-size:14px;font-weight:600;padding:10px 14px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--teal)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface);margin-bottom:8px}
+.seg button{font:inherit;font-size:13px;font-weight:500;padding:7px 11px;border:0;background:none;color:var(--fg);cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--teal);color:var(--on-teal);font-weight:600}
+:focus-visible{outline:2px solid var(--teal-ink);outline-offset:1px}
+.btn,input[type=date]{font:inherit;font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg)}
+.btn{cursor:pointer;font-weight:500}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.on{background:var(--teal-soft);border-color:var(--teal);color:var(--teal-ink);font-weight:600}
+/* vista de calendario (meses) */
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(270px,100%),1fr));gap:12px}
+.month{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:var(--shadow)}
+.mhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:8px}
+.mhead h3{margin:0;font-family:var(--display);font-size:17px;font-weight:700;text-transform:capitalize}
+.mstat{font-size:11.5px;color:var(--muted);text-align:right}
+.mstat.has{color:var(--out-ink);font-weight:600}
+.dow,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.dow{margin-bottom:3px}
+.dow span{font-size:10.5px;color:var(--muted);text-align:center;font-weight:600}
+.dow span.svc{color:var(--teal-ink)}
+.day{position:relative;aspect-ratio:1/1;border-radius:7px;display:flex;align-items:flex-start;justify-content:center;padding-top:4px;font:inherit;font-size:12.5px;cursor:pointer;border:0;background:transparent;color:var(--fg);font-variant-numeric:tabular-nums}
+.day.empty{cursor:default}
+.day:not(.empty):hover{box-shadow:inset 0 0 0 1.5px var(--muted)}
+.day.svc::before{content:"";position:absolute;left:28%;right:28%;bottom:4px;height:3px;border-radius:2px;background:var(--teal)}
+.day.o1{background:color-mix(in srgb,var(--out) 22%,var(--surface));font-weight:600}
+.day.o2{background:color-mix(in srgb,var(--out) 50%,var(--surface));font-weight:700}
+.day.o3{background:var(--out);color:var(--on-out);font-weight:700}
+.day.op{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--out) 35%,transparent) 0 3px,transparent 3px 7px);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--out) 60%,transparent);font-weight:600}
+.day.op:hover{box-shadow:inset 0 0 0 1.5px var(--muted)}
+.day .ct{position:absolute;top:2px;right:4px;font-size:9.5px;font-weight:700;opacity:.85}
+.day.past{opacity:.45}
+.day.today{outline:2px solid var(--fg);outline-offset:1px}
+@media (max-width:520px){.day{aspect-ratio:auto;height:42px}}
+.lg-o1{background:color-mix(in srgb,var(--out) 22%,var(--surface));box-shadow:inset 0 0 0 1px var(--line)} .lg-o2{background:color-mix(in srgb,var(--out) 50%,var(--surface))} .lg-o3{background:var(--out)}
+.lg-sv{background:linear-gradient(var(--teal),var(--teal)) center 70%/60% 3px no-repeat,var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.tip{position:fixed;z-index:60;pointer-events:none;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.18);width:max-content;max-width:280px;font-size:12.5px;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
+.tip.show{opacity:1;transform:none}
+.tip .t-date{font-weight:700;margin-bottom:6px}
+.tip .t-h{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--out-ink);margin:2px 0 4px}
+.tip .t-ev{display:flex;gap:8px;align-items:flex-start;margin:4px 0}
+.tip .t-ev i{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:none;background:var(--out)}
+.tip .t-ev i.pt{background:transparent;box-shadow:inset 0 0 0 1.5px var(--out)}
+.tip .t-ev b{font-weight:600;display:block}
+.tip .t-sub{color:var(--muted);font-size:11.5px}
+.tip .t-meta{color:var(--muted);font-size:11.5px;margin-top:6px;padding-top:6px;border-top:1px solid var(--line)}
+/* eventos */
+.day.ev{box-shadow:inset 0 0 0 2.5px var(--ev)}
+.day.ev.tent{box-shadow:none;border:2px dashed var(--ev)}
+.day.ev:hover{box-shadow:inset 0 0 0 2.5px var(--ev),inset 0 0 0 4px var(--muted)}
+.lg-ev{box-shadow:inset 0 0 0 2.5px var(--ev);background:var(--surface)} .lg-evt{border:2px dashed var(--ev);background:var(--surface)}
+.tip .t-ev i.e{background:var(--ev);border-radius:2px}
+.tip .t-ev i.e.tent{background:transparent;box-shadow:inset 0 0 0 1.5px var(--ev)}
+.tip .t-h.e{color:var(--ev-ink)}
+.mx tr.evrow th.nm{color:var(--ev-ink);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.mx tr.evrow td.e i{background:var(--ev)}
+.mx tr.evrow td.e.tent i{background:repeating-linear-gradient(135deg,var(--ev) 0 3px,transparent 3px 7px);box-shadow:inset 0 0 0 1.5px var(--ev)}
+.mx td.miss i{box-shadow:inset 0 0 0 2px var(--ev)}
+.mx td.p.miss i{box-shadow:inset 0 0 0 2px var(--ev)}
+.lg-mx-ev{background:var(--ev)} .lg-miss{background:var(--out);box-shadow:inset 0 0 0 2px var(--ev)}
+.evs{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.evs li{display:grid;grid-template-columns:minmax(200px,1fr) minmax(200px,1.3fr);gap:6px 16px;padding:11px 14px;border-bottom:1px solid var(--line);align-items:start}
+.evs li:last-child{border-bottom:0}
+@media (max-width:620px){.evs li{grid-template-columns:1fr}}
+.evs .en{display:flex;gap:9px;align-items:flex-start}
+.evs .en i{width:10px;height:10px;border-radius:3px;background:var(--ev);margin-top:6px;flex:none}
+.evs .en i.tent{background:transparent;box-shadow:inset 0 0 0 1.5px var(--ev)}
+.evs .en b{display:block;font-weight:600}
+.evs small{font-size:12.5px;color:var(--muted)}
+.evs .who{font-size:13.5px}
+.okt{color:var(--teal-ink);font-weight:600;font-size:13px}
+.outt{color:var(--out-ink);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-right:6px}
+.missl{display:block;font-size:12px;color:var(--ev-ink);font-weight:600;margin-top:2px}
+.evpanel{border-left:4px solid var(--ev)}
+.evpanel ul{list-style:none;margin:0;padding:0}
+.evpanel li{padding:3px 0;font-size:14px}
+.evpanel li small{color:var(--muted);font-size:12.5px;margin-left:6px}
+.evtools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:13.5px}
+.evtools label{display:flex;gap:6px;align-items:center;cursor:pointer}
+/* calendario por persona */
+.mnav{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.mnav h2{font-family:var(--display);font-size:22px;margin:0 6px;min-width:170px;text-transform:capitalize}
+.mscroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.mx{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px}
+.mx th.nm{position:sticky;left:0;z-index:2;background:var(--surface);text-align:left;padding:6px 10px;min-width:160px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.mx thead th{font-weight:600;color:var(--muted);padding:7px 0 5px;border-bottom:1px solid var(--line)}
+.mx thead th.nm{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mx th.d{min-width:29px;text-align:center;line-height:1.15;cursor:pointer}
+.mx th.d span{display:block;font-size:9.5px;letter-spacing:.04em;text-transform:uppercase}
+.mx th.d b{display:block;font-size:13px;color:var(--fg);font-variant-numeric:tabular-nums;width:22px;height:22px;line-height:22px;margin:1px auto 0;border-radius:999px}
+.mx th.d.today b{background:var(--teal);color:var(--on-teal)}
+.mx th.d:hover b{outline:1.5px solid var(--teal)}
+.mx .svc{background:var(--col)}
+.mx th.d.svc span{color:var(--teal-ink)}
+.mx td{height:34px;padding:5px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.mx td i{display:block;height:100%;border-radius:4px}
+.mx td:hover:not(.x):not(.p) i{background:var(--track)}
+.mx td.x i{background:var(--out)}
+.mx td.p i{background:repeating-linear-gradient(135deg,var(--out) 0 3px,transparent 3px 7px);box-shadow:inset 0 0 0 1.5px var(--out)}
+.mx td.jl{padding-left:0} .mx td.jr{padding-right:0}
+.mx td.jl i{border-top-left-radius:0;border-bottom-left-radius:0}
+.mx td.jr i{border-top-right-radius:0;border-bottom-right-radius:0}
+.mx .past{opacity:.45}
+.mx tr.gh th{text-align:left;font-family:var(--display);font-size:14px;font-weight:700;color:var(--teal-ink);padding:12px 10px 5px;background:var(--surface);border-bottom:1px solid var(--line);letter-spacing:.01em}
+.mx tr.gh th span{position:sticky;left:10px}
+.mx tr.nf th.nm{color:var(--muted);font-weight:500;font-style:italic}
+.mx tr.tot th.nm{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:0}
+.mx tr.tot td{font-size:12px;font-weight:700;color:var(--muted);text-align:center;height:30px;border-bottom:0;font-variant-numeric:tabular-nums}
+.mx tr.tot td.has{color:var(--out-ink)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px;align-items:center}
+.legend i{display:inline-block;width:18px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
+.lg-x{background:var(--out)} .lg-p{background:repeating-linear-gradient(135deg,var(--out) 0 3px,transparent 3px 7px);box-shadow:inset 0 0 0 1.5px var(--out)} .lg-s{background:var(--col);box-shadow:inset 0 0 0 1px var(--line)}
+@media (max-width:620px){.mx th.nm{min-width:132px;max-width:132px;padding:6px 8px}.tabs button{padding:10px 10px}.mnav h2{font-size:19px;min-width:0}}
+/* disponibilidad */
+.pick{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;margin-bottom:14px}
+.pick label{display:flex;flex-direction:column;font-size:12px;font-weight:600;color:var(--muted);gap:3px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.when{font-family:var(--display);font-size:24px;font-weight:700;margin:0 0 12px;line-height:1.15}
+.when::first-letter{text-transform:uppercase}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+.panel h2{font-family:var(--display);font-size:19px;margin:0 0 10px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:620px){.cols{grid-template-columns:1fr}}
+.cols h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 6px;font-weight:700;display:flex;align-items:center;gap:8px}
+.cols h3 .ct{font-family:var(--display);font-size:18px;letter-spacing:0}
+.cols h3.o{color:var(--out-ink)} .cols h3.a{color:var(--teal-ink)}
+.pl{list-style:none;margin:0;padding:0}
+.pl li{padding:7px 0;border-bottom:1px dashed var(--line);display:flex;flex-direction:column}
+.pl li:last-child{border-bottom:0}
+.pl b{font-weight:600}
+.pl small{font-size:12.5px;color:var(--body)}
+.pl .empty{color:var(--muted);font-size:13.5px}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--out-soft);color:var(--out-ink);margin-left:6px;vertical-align:1px}
+.nfn{font-size:12.5px;color:var(--muted);margin:10px 0 0;font-style:italic}
+/* próximas */
+.wkh{font-family:var(--display);font-size:16px;font-weight:700;color:var(--teal-ink);margin:16px 0 6px}
+.wkh:first-child{margin-top:0}
+.up{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.up li{display:grid;grid-template-columns:minmax(140px,1fr) minmax(150px,1.4fr) 110px;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);align-items:center;font-size:14px}
+.up li:last-child{border-bottom:0}
+.up .nm{font-weight:600}
+.up .gc{display:block;font-size:11.5px;color:var(--muted);font-weight:500}
+.up .dur{text-align:right;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+@media (max-width:620px){.up li{grid-template-columns:1fr auto;gap:2px 10px}.up li .wh{grid-column:1/-1;grid-row:2}}
+.note{font-size:12.5px;color:var(--muted);margin-top:22px;max-width:80ch}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"></div>
+  <header>
+    <div>
+      <div class="eyebrow">Iglesia Northwood · Equipo pastoral y ministerial</div>
+      <h1>Disponibilidad del Equipo</h1>
+      <p class="lede">Quién no está disponible y cuándo, según los blockout dates que cada uno registra en Planning Center.</p>
+      <div class="stamp">Actualizado: __UPDATED__ · se actualiza cada mañana</div>
+    </div>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="196.19 383.84 1524.74 298.22" width="1525" height="298" fill-rule="evenodd" clip-rule="evenodd" role="img" aria-labelledby="t d">
+  <title id="t">Iglesia Northwood — primary lockup</title>
+  <desc id="d">Filled circle mark with two-line wordmark.</desc>
+  <g id="mark" ><path d="M 196.19,532 c -0.53,-75.3 60.43,-141.51 135.31,-147.88 c 2.33,-0.24 4.65,-0.3 6.97,-0.17 c 0.5,0.38 0.72,0.88 0.68,1.5 c -0.01,15.31 -0.12,30.61 -0.32,45.91 c -0.29,0.49 -0.73,0.73 -1.3,0.72 c -9.28,0.6 -18.57,0.98 -27.86,1.15 c -0.51,0.25 -0.78,0.67 -0.82,1.24 c -0.06,4.03 -0.08,8.06 -0.07,12.09 c -0.01,0.62 0.24,1.1 0.77,1.42 c 8.65,-0.24 17.3,-0.55 25.95,-0.94 c 0.96,0.15 2.63,-0.38 3.21,0.68 c -0.33,30.94 -0.53,61.87 -0.61,92.82 c 0.04,0.6 -0.19,1.08 -0.67,1.42 c -4.31,0.13 -8.61,0.34 -12.91,0.65 c -1.36,0.02 -2,-0.68 -1.93,-2.08 c -0.19,-10.01 -0.39,-20.01 -0.6,-30.01 c -0.3,-0.56 -0.77,-0.83 -1.41,-0.81 c -3.35,0.2 -6.69,0.36 -10.04,0.5 c -0.87,0.01 -1.37,0.44 -1.5,1.3 c -0.09,9.99 -0.17,19.98 -0.26,29.97 c 0.07,0.8 -0.15,1.49 -0.66,2.08 c -5.54,0.51 -11.08,1.04 -16.62,1.59 c -31.36,3.95 -60.61,10.16 -91,18.85 c -0.56,0.02 -0.97,-0.22 -1.21,-0.71 c -1.91,-10.38 -3.19,-20.34 -3.1,-31.29 Z M 353.96,387 c 0.03,-1.19 -0.39,-3.28 1.49,-3.16 c 19.04,1.11 37.2,5.75 54.47,13.91 c 63.24,30.89 95.7,95.38 82.94,164.71 c -0.2,1.34 -0.97,1.82 -2.31,1.42 c -29.82,-8.87 -58.67,-14.61 -89.45,-18.67 c -5.42,-0.37 -10.79,-0.94 -16.14,-1.71 c -1.37,-2.26 -0.86,-26.56 -0.89,-31.02 c 0.07,-0.86 -0.22,-1.56 -0.85,-2.1 c -3.59,-0.26 -7.18,-0.47 -10.78,-0.6 c -0.62,-0.02 -1.07,0.25 -1.36,0.79 c -0.1,10.5 -0.31,21 -0.63,31.49 c -0.55,0.51 -1.21,0.72 -1.97,0.61 c -4,-0.36 -8.01,-0.54 -12.03,-0.52 c -0.6,0.02 -1.05,-0.23 -1.36,-0.74 c -0.11,-31.18 -0.31,-62.36 -0.6,-93.55 c 0.42,-1.12 2.11,-0.7 3,-0.83 c 8.67,0.38 17.34,0.7 26,0.98 c 0.6,-0.28 0.91,-0.75 0.94,-1.41 c 0.04,-4.05 0.01,-8.11 -0.1,-12.15 c -0.1,-0.6 -0.42,-1.02 -0.98,-1.24 c -8.97,-0.13 -17.92,-0.49 -26.87,-1.1 c -0.89,0.09 -1.61,-0.18 -2.18,-0.83 c -0.19,-14.76 -0.3,-29.52 -0.34,-44.28 Z M 322.83,561 c -0.02,-1.28 -0.22,-3.13 1.66,-2.98 c 4.31,-0.13 8.62,-0.11 12.92,0.04 c 0.48,0.34 0.7,0.81 0.66,1.41 c -0.05,40.35 -0.4,80.71 -1.04,121.05 c -0.05,0.96 -0.55,1.45 -1.52,1.46 c -3.63,-0.14 -7.23,-0.54 -10.8,-1.22 c -0.46,-0.29 -0.69,-0.71 -0.68,-1.26 c -0.63,-39.5 -1.26,-78.98 -1.2,-118.5 Z M 354.99,561 c 0.03,-1.19 -0.38,-3.21 1.47,-3.1 c 4.31,-0.01 8.61,0.08 12.91,0.26 c 0.75,0.58 1.07,1.35 0.95,2.31 c -0.41,39.7 -0.13,79.35 -1.3,119.03 c -0.03,0.54 -0.29,0.94 -0.76,1.19 c -3.26,0.4 -6.52,0.81 -9.77,1.25 c -1.37,0.36 -2.18,-0.12 -2.43,-1.44 c -0.14,-39.83 -0.5,-79.67 -1.07,-119.5 Z M 201.68,572.08 c 31.62,-6.67 63.59,-10.34 95.82,-12.92 c 3.01,-0.15 6.02,-0.23 9.03,-0.25 c 0.63,-0.06 1.16,0.14 1.58,0.6 c -0.07,27.99 -0.21,55.98 -0.41,83.99 c -0.15,10.99 -0.38,21.97 -0.7,32.94 c -0.41,0.44 -0.89,0.56 -1.46,0.36 c -3.85,-1.09 -7.65,-2.3 -11.42,-3.63 c -1.05,-0.52 -1.59,-1.38 -1.63,-2.58 c -0.5,-30.68 -0.5,-61.47 -1.41,-92.12 c 0.05,-0.61 -0.16,-1.12 -0.62,-1.51 c -2.31,-0.11 -4.63,-0.05 -6.94,0.19 c -1.1,-0.01 -1.82,0.48 -2.17,1.49 c -0.24,28.6 -0.63,57.29 -1.33,85.88 c -0.23,0.77 0.31,1.72 -0.69,2.04 c -36.83,-17.53 -65.48,-52.22 -77.02,-91.26 c -0.27,-1.06 -0.48,-2.13 -0.63,-3.22 Z M 384.83,560.99 c -0.12,-0.79 0.13,-1.43 0.74,-1.91 c 12.8,-0.11 28.86,2.1 41.93,2.98 c 19.86,2.5 42.77,5.63 62.11,9.87 c 0.39,0.09 0.65,0.31 0.8,0.67 c -11.31,40.53 -38.61,74.09 -76.07,93.23 c -0.9,0.05 -1.33,-0.39 -1.3,-1.31 c -0.44,-28.62 -0.85,-57.25 -1.23,-85.87 c -0.78,-2.11 -7.42,-1.8 -9.21,-1.6 c -0.44,0.37 -0.64,0.85 -0.59,1.43 c -0.67,30.67 -1.07,61.34 -1.22,92.01 c -0.02,0.52 -0.16,1 -0.42,1.44 c -4.39,2.04 -8.96,3.61 -13.69,4.69 c -0.67,-0.51 -0.95,-1.21 -0.84,-2.1 c -0.51,-37.84 -0.85,-75.68 -1.01,-113.53 Z"/></g>
+  <g id="wordmark" ><path d="M 592.6,469 c 0.14,-12.87 3.07,-23.26 10.26,-33.87 c 5.61,-10.03 26.05,-22.85 36.65,-23.36 c 25.07,-4.49 49.96,-1.08 67.6,18.39 c 1.11,1.17 1.07,2.29 -0.13,3.36 c -7.42,6.6 -14.93,13.09 -22.52,19.47 c -0.65,0.15 -1.23,0.02 -1.74,-0.39 c -4.36,-4.72 -9.58,-8.13 -15.65,-10.22 c -3.2,-0.69 -11.36,-2.14 -13.8,0.18 c -1.86,-0.5 -3.67,-0.33 -5.42,0.5 c -28.91,11.53 -18.07,63.9 20.86,52.34 c 2.34,-0.28 3.36,-1.58 3.08,-3.9 c -0.01,-8.02 -0.01,-16.03 0.01,-24.05 c 0,-0.61 0.26,-1.07 0.78,-1.37 c 10.6,-0.19 21.2,-0.17 31.8,0.04 c 0.18,0.17 0.36,0.33 0.54,0.5 c 0.28,15.6 0.31,31.21 0.11,46.82 c -0.39,0.95 -1.04,1.67 -1.96,2.15 c -18.74,10.57 -40.24,15.01 -61.57,11.42 c -29.04,-5.2 -49.11,-28.06 -48.9,-58.01 Z M 912.3,515.89 c 3.27,-8.43 7.34,-16.37 10.61,-24.73 c 0.45,-1 1.04,-1.89 1.79,-2.66 c 3.04,1.4 6.09,2.84 9.16,4.34 c 10.37,3.9 31.46,9.77 41.18,2.64 c 3.91,-5.74 -4.31,-7.79 -7.66,-9.21 c -26.41,-4.82 -55.37,-9.16 -53.35,-42.78 c 5.85,-32.72 43.5,-36.38 70.27,-32.07 c 3.72,0.56 24.28,5.36 24.72,9.05 c -0.68,1.86 -1.23,3.76 -1.64,5.7 c -3.82,6.75 -5.6,14.29 -9.5,21.09 c -0.59,0.18 -1.19,0.16 -1.77,-0.07 c -7.32,-3.57 -43.34,-15.45 -44,-0.66 c 0.64,7.25 24.72,8.36 30.32,10.68 c 25.64,7.12 35.63,17.58 29.99,44.99 c -13.66,28.59 -47.95,28.39 -75,23.76 c -3.84,-0.79 -24.38,-6.39 -25.12,-10.07 Z M 543.95,522 c -0.03,-36.15 0.01,-72.29 0.13,-108.43 c 0.58,-0.8 1.37,-1.16 2.39,-1.07 c 11.69,-0.07 23.37,0.01 35.05,0.24 c 0.53,0.18 0.89,0.53 1.07,1.05 c 0.1,35.91 0.14,71.81 0.11,107.71 c -0.11,1.14 0.38,3.95 -1.34,4.14 c -11.93,0.12 -23.87,0.16 -35.82,0.11 c -2.03,0.2 -1.49,-2.51 -1.59,-3.75 Z M 717.79,522 c -0.05,-36.17 0.01,-72.33 0.18,-108.49 c 0.63,-0.79 1.46,-1.13 2.5,-1.02 c 11.02,0.02 22.04,0.02 33.06,0 c 2.12,-0.14 3.09,0.86 2.89,2.99 c -0.09,26.51 -0.01,53.01 0.23,79.51 c 0.51,0.51 1.14,0.73 1.88,0.67 c 15.99,-0.09 31.98,0 47.95,0.26 c 0.65,0.72 0.9,1.58 0.77,2.56 c 0.03,8.68 -0.01,17.36 -0.12,26.04 c -0.2,0.87 -0.76,1.29 -1.67,1.25 c -28.64,-0.01 -57.28,-0.01 -85.92,-0.01 c -2.12,0.26 -1.69,-2.45 -1.75,-3.76 Z M 813.87,522 c 0.02,-35.5 0.02,-71.01 0,-106.51 c -0.12,-2.51 1.09,-3.51 3.63,-3 c 28.68,0.02 57.35,0.02 86.03,0.01 c 1.59,-0.25 2.49,0.4 2.72,1.94 c 0.05,8.7 0.01,17.39 -0.1,26.08 c -0.06,0.57 -0.35,0.98 -0.84,1.24 c -16.94,0.14 -33.88,0.19 -50.83,0.13 c -1.41,-0.29 -2.24,0.25 -2.5,1.6 c -0.01,3.01 -0.02,6.02 -0.02,9.03 c 0.01,0.99 0.51,1.57 1.49,1.74 c 14.67,0.07 29.33,0.08 44,0.03 c 2.01,-0.29 1.96,1.83 1.95,3.21 c 0.07,8.01 -0.02,16.01 -0.3,23.99 c -0.39,0.49 -0.91,0.72 -1.55,0.69 c -14.94,-0.07 -29.88,-0.02 -44.81,0.13 c -0.45,0.27 -0.69,0.67 -0.71,1.2 c 0.07,3.09 -0.51,9.99 0.36,12.61 c 0.36,0.31 0.78,0.47 1.26,0.47 c 17.29,0.06 34.58,0.07 51.87,0.04 c 1,-0.11 1.81,0.2 2.43,0.94 c 0.16,8.3 0.22,16.62 0.18,24.94 c -0.15,1.12 0.3,2.48 -0.89,3.13 c -30.56,0.13 -61.12,0.16 -91.68,0.09 c -2.03,0.16 -1.63,-2.45 -1.69,-3.73 Z M 1021.69,522 c -0.06,-36.18 0.01,-72.34 0.23,-108.51 c 0.66,-0.76 1.52,-1.09 2.55,-0.99 c 11.71,-0.09 23.4,0.01 35.09,0.3 c 1.38,0.52 0.86,2.6 1,3.71 c 0.08,36.07 -0.01,72.13 -0.28,108.19 c -0.18,0.48 -0.52,0.81 -1.01,0.98 c -11.9,0.08 -23.81,0.11 -35.72,0.07 c -2.1,0.21 -1.84,-2.38 -1.86,-3.75 Z M 1063.06,524.96 c 15.88,-37.41 32.03,-74.68 48.73,-111.7 c 1.14,-0.69 2.38,-0.94 3.71,-0.76 c 10.67,0.01 21.34,0.01 32.01,0 c 0.97,0.01 1.86,0.26 2.69,0.76 c 16.11,36.61 32.25,73.3 48.23,110.03 c 0.83,1.93 0.19,2.75 -1.92,2.47 c -12.18,0.06 -24.36,0 -36.54,-0.17 c -0.72,-0.22 -1.23,-0.68 -1.52,-1.37 c -1.9,-5.94 -4.12,-11.77 -6.63,-17.49 c -1.01,-0.61 -2.11,-0.83 -3.31,-0.66 c -12.92,-0.07 -25.82,0.02 -38.71,0.26 c -0.59,0.53 -1,1.18 -1.22,1.94 c -2,5.69 -4.04,10.96 -6.5,16.54 c -0.38,0.56 -0.91,0.86 -1.6,0.89 c -11.98,0.06 -23.97,0.08 -35.95,0.06 c -0.68,0.05 -1.17,-0.21 -1.47,-0.8 Z M 1120.76,477.05 c 0.14,0.4 0.42,0.66 0.82,0.8 c 5.64,0.14 11.29,0.18 16.93,0.13 c 0.8,0.09 1.5,-0.09 2.13,-0.53 c -3.05,-8.16 -6.21,-16.27 -9.49,-24.33 c -0.77,-0.26 -1.3,0.01 -1.59,0.81 c -3.06,7.66 -6,15.37 -8.8,23.12 Z M 665.73,598 c -1.07,-53.55 64.59,-75.39 104.68,-46.83 c 28.82,21.4 31.14,64.06 5.4,88.95 c -21.14,18.53 -45.31,20.11 -71.53,13.07 c -23.93,-10.49 -38.19,-28.24 -38.55,-55.19 Z M 1329.77,598 c -0.64,-18.57 8.63,-36.19 23.39,-47.16 c 48.6,-31.51 116.59,0.73 102.47,62.59 c -1.73,7.33 -4.51,12.04 -8.52,18.36 c -34.06,45.26 -119.16,27.09 -117.34,-33.79 Z M 1463.08,598 c -1.24,-74.84 121.03,-81.3 127.82,-4.5 c 1.2,27.42 -12.07,48.32 -37.14,58.81 c -4.7,2.78 -14.58,3.64 -20.25,4.66 c -36.72,3.01 -70.58,-20.23 -70.43,-58.97 Z M 543.95,545 c 0.11,-1.26 -0.47,-3.99 1.58,-3.83 c 5.59,0.26 26.63,-0.64 30.43,0.54 c 13.6,16.04 27.11,32.17 40.54,48.39 c 1.31,1.65 1.74,-0.55 1.6,-1.58 c -0.1,-15.58 -0.01,-31.16 0.25,-46.72 c 0.6,-0.96 2.22,-0.52 3.14,-0.66 c 11.22,-0.09 22.43,0.02 33.62,0.32 c 0.62,0.9 0.86,1.91 0.72,3.04 c -0.01,35.67 -0.01,71.34 -0.01,107.01 c 0.16,2.32 -0.95,3.26 -3.32,2.8 c -5.69,-0.27 -24.77,0.48 -28.9,-0.43 c -13.31,-15.71 -26.57,-31.47 -39.77,-47.3 c -1.44,-1.6 -2.17,-1.3 -2.19,0.88 c 0.01,14.99 0.01,29.98 0.01,44.97 c 0.22,1.9 -1.83,1.88 -3.14,1.89 c -11.33,0.08 -22.63,-0.03 -33.93,-0.32 c -0.55,-0.73 -0.76,-1.56 -0.63,-2.49 c 0.01,-35.5 0.01,-71.01 0,-106.51 Z M 803.63,651 c 0.01,-35.5 0.01,-71 -0.01,-106.5 c 0.01,-1.37 -0.1,-3.55 1.9,-3.35 c 17.33,0 34.65,0 51.98,0 c 13.91,0.08 24.38,2.48 36.26,9.6 c 22.6,18 22.04,53.43 -3.45,68.13 c -0.49,0.4 -0.7,0.91 -0.63,1.54 c 7,10.74 14.17,21.38 21.51,31.94 c 1.8,1.96 -1.57,2.03 -2.69,1.95 c -12.35,0.06 -24.68,-0.02 -37.02,-0.24 c -2.27,-1.21 -16.04,-23.4 -18.97,-27.16 c -0.53,-0.59 -1.19,-0.88 -2,-0.86 c -1.41,0.25 -7.5,-0.67 -8.08,0.75 c -0.08,8.24 -0.1,16.48 -0.07,24.72 c 0.12,1.01 -0.18,1.85 -0.88,2.54 c -12,0.24 -24.02,0.32 -36.05,0.23 c -1.96,0.04 -1.83,-1.91 -1.8,-3.29 Z M 910.22,568 c 0,-8.16 0.01,-16.32 0.01,-24.48 c -0.21,-1.2 0.24,-1.97 1.35,-2.29 c 33.96,-0.09 67.92,-0.1 101.88,-0.04 c 0.51,-0.01 0.93,0.18 1.25,0.58 c 0.31,8.9 0.42,17.81 0.32,26.74 c 0.28,1.95 -0.55,2.88 -2.51,2.78 c -9.65,-0.01 -19.31,-0.01 -28.97,0 c -0.86,-0.02 -1.39,0.38 -1.58,1.22 c -0.1,26.65 -0.14,53.31 -0.1,79.97 c 0.2,2.02 -2.03,1.81 -3.37,1.83 c -10.67,-0.02 -21.33,-0.02 -32,0 c -1.35,-0.01 -3.55,0.18 -3.36,-1.83 c -0.01,-26 -0.01,-51.99 0.01,-77.98 c -0.05,-1.25 0.29,-3.5 -1.69,-3.23 c -9.66,0.02 -19.32,0.02 -28.99,0.01 c -2.4,0.07 -2.34,-1.37 -2.25,-3.28 Z M 1020.93,544 c 0.04,-1.17 -0.07,-2.91 1.61,-2.81 c 11.32,-0.03 22.64,-0.05 33.96,-0.05 c 2.06,-0.44 3.12,0.36 3.2,2.39 c -0.09,12.31 0.02,24.6 0.31,36.88 c 0.39,0.45 0.88,0.65 1.47,0.61 c 10.35,-0.02 20.69,-0.02 31.03,-0.02 c 0.94,-0.05 1.44,-0.55 1.49,-1.49 c -0.08,-12.59 0.03,-25.16 0.31,-37.73 c 0.32,-0.39 0.73,-0.59 1.24,-0.58 c 11.31,-0.04 22.63,-0.06 33.95,-0.06 c 1.15,0.07 3.17,-0.23 3.2,1.47 c 0.09,36.62 0.11,73.23 0.09,109.85 c 0.2,1.97 -1.96,1.85 -3.29,1.86 c -11.01,-0.03 -22.02,-0.03 -33.02,-0.01 c -1.47,0.22 -2.29,-0.39 -2.46,-1.81 c 0.05,-12.96 0,-25.91 -0.17,-38.86 c -0.32,-0.46 -0.77,-0.67 -1.33,-0.64 c -10.35,0 -20.69,0 -31.04,-0.02 c -1.01,-0.02 -1.59,0.47 -1.75,1.46 c -0.02,12.35 -0.02,24.71 -0.02,37.07 c 0.18,2.27 -0.89,3.21 -3.21,2.81 c -11.01,-0.02 -22.01,-0.03 -33.02,-0.02 c -1.99,0.12 -2.84,-0.81 -2.55,-2.79 c 0.01,-35.83 0.01,-71.67 0,-107.51 Z M 1600.92,544 c -0.35,-2.08 0.5,-3.03 2.57,-2.85 c 25.88,1.02 53.49,-2.7 78.72,3.45 c 5.05,2.27 10,4.08 14.68,7.21 c 32.2,21.3 31.93,70.9 -0.08,92.26 c -10.88,6.49 -22.65,9.89 -35.31,10.19 c -19,0.03 -38,0.05 -57,0.05 c -2.28,0.07 -3.93,0.04 -3.58,-2.8 c 0.01,-35.83 0.01,-71.67 0,-107.51 Z M 1140.25,542.28 c 6.05,-1.17 28.47,-0.22 36.26,-0.55 c 0.94,-0.02 1.84,0.16 2.7,0.52 c 3.32,10.9 6.76,21.77 10.32,32.61 c 1.93,8.82 5.67,18.21 7.96,26.99 c 0.58,1.36 1.32,1.47 2.22,0.33 c 1.37,-2.74 3.51,-9.87 4.09,-13 c 3.58,-9.02 5.78,-18.69 9.33,-27.68 c 1.97,-6.27 3.95,-12.51 5.93,-18.73 c 0.69,-0.62 1.49,-0.96 2.42,-1.03 c 6.22,0.01 28.43,-1.33 32.82,0.43 c 1.2,3.7 2.51,7.37 3.92,11.02 c 4.82,17.08 9.88,34.08 15.19,50.99 c 0.42,0.69 0.91,0.77 1.47,0.24 c 6.52,-20.76 13.15,-41.48 19.87,-62.17 c 3.85,-1.74 27.86,-0.5 33.78,-0.51 c 0.85,-0.06 1.54,0.22 2.07,0.83 c -0.7,1.82 -1.09,3.7 -1.18,5.63 c -1.11,2.26 -2.04,4.6 -2.79,7.04 c -10.57,32.85 -20.7,65.53 -31.61,98.24 c -0.36,0.5 -0.85,0.78 -1.47,0.85 c -12.36,0.06 -24.71,0.09 -37.07,0.07 c -0.99,0.07 -1.82,-0.24 -2.52,-0.91 c -5.68,-18.07 -11.53,-36.02 -16.39,-54.25 c -0.37,-1.96 -2.29,-4 -3.06,-0.83 c -0.2,3.08 -1.98,5.86 -2.81,8.86 c -4.41,14 -8.83,27.99 -13.26,41.98 c -0.43,1.71 -1.12,3.29 -2.05,4.75 c -5.55,2.03 -30.36,0.4 -37.9,0.41 c -0.95,0.01 -1.86,-0.2 -2.71,-0.64 c -2.13,-6.19 -4.21,-12.4 -6.24,-18.61 c -0.8,-4.39 -4.43,-12.86 -5.27,-17.66 c -7.97,-25.09 -16.48,-50.03 -24.02,-75.22 Z M 704.79,598 c -0.65,39.99 57.89,35.61 48.89,-8.06 c -7.38,-30.69 -50.11,-24.12 -48.89,8.06 Z M 1368.75,598 c -0.85,42.07 62.74,33.98 47.71,-12.28 c -11.4,-26.64 -48.84,-17.32 -47.71,12.28 Z M 1502.08,598 c 1.15,44.59 63.93,30.95 47.39,-12.98 c -11.77,-25.91 -48.45,-16.18 -47.39,12.98 Z M 842.34,593.99 c -0.42,2.5 0.63,3.52 3.15,3.05 c 11.78,0.34 26.82,0.94 25.28,-15.39 c -1.54,-8.67 -9.5,-11 -17.27,-10.5 c -3.55,-0.1 -7.08,0 -10.6,0.31 c -0.43,0.62 -0.61,1.31 -0.55,2.08 c 0.01,6.82 0,13.63 -0.01,20.45 Z M 1639.79,574 c -0.05,16.49 0.02,32.97 0.21,49.45 c 0.34,0.51 0.83,0.76 1.45,0.75 c 6.36,0.1 12.71,0.01 19.05,-0.28 c 18.91,-3.07 24.25,-19.92 19.7,-36.81 c -7.16,-17.56 -23.56,-15.89 -39.42,-15.7 c -0.83,0.65 -1.16,1.51 -0.99,2.59 Z"/></g>
+</svg>
+  </header>
+  <div class="demo" id="demo" hidden>Vista de prueba con datos de ejemplo: las fechas no son reales.</div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="bar2">
+    <div class="tabs" role="tablist">
+      <button role="tab" data-t="yr">Calendario</button>
+      <button role="tab" data-t="cal">Por persona</button>
+      <button role="tab" data-t="ev">Eventos</button>
+      <button role="tab" data-t="av">¿Quién está disponible?</button>
+      <button role="tab" data-t="up">Próximas ausencias</button>
+    </div>
+    <div class="seg" id="seg" role="group" aria-label="Grupo"></div>
+  </div>
+
+  <section id="v-yr" hidden>
+    <div class="months" id="months"></div>
+    <div class="legend">
+      <span><i class="lg-o1"></i>1 fuera</span>
+      <span><i class="lg-o2"></i>2 fuera</span>
+      <span><i class="lg-o3"></i>3 o más</span>
+      <span><i class="lg-p"></i>Solo parte del día</span>
+      <span><i class="lg-sv"></i>Domingo y miércoles</span>
+      <span><i class="lg-ev"></i>Evento</span>
+      <span><i class="lg-evt"></i>Evento tentativo</span>
+      <span id="yrhint">Pasa el mouse por un día para ver quién está fuera; tócalo para ver el detalle.</span>
+    </div>
+  </section>
+
+  <section id="v-cal" hidden>
+    <div class="mnav">
+      <button class="btn" id="mprev" aria-label="Mes anterior">‹</button>
+      <h2 id="mlabel"></h2>
+      <button class="btn" id="mnext" aria-label="Mes siguiente">›</button>
+      <button class="btn" id="mtoday">Hoy</button>
+    </div>
+    <div class="mscroll" id="mx"></div>
+    <div class="legend">
+      <span><i class="lg-x"></i>No disponible</span>
+      <span><i class="lg-p"></i>Parte del día</span>
+      <span><i class="lg-s"></i>Domingo y miércoles (días de servicio)</span>
+      <span><i class="lg-mx-ev"></i>Evento</span>
+      <span><i class="lg-miss"></i>Fuera en un día de evento</span>
+      <span>Toca un día para ver quién está disponible.</span>
+    </div>
+  </section>
+
+  <section id="v-ev" hidden>
+    <div class="evtools"><label><input type="checkbox" id="evonly"> Solo eventos con alguien fuera</label></div>
+    <div id="evlist"></div>
+  </section>
+
+  <section id="v-av" hidden>
+    <div class="pick">
+      <label>Desde <input type="date" id="from"></label>
+      <label>Hasta <input type="date" id="to"></label>
+      <div class="chips" id="chips"></div>
+    </div>
+    <p class="when" id="when"></p>
+    <div id="avres"></div>
+  </section>
+
+  <section id="v-up" hidden>
+    <div id="uplist"></div>
+  </section>
+
+  <p class="note">Disponible = no tiene blockout registrado en Planning Center para esa fecha. Si alguien no registra sus fechas, aquí aparece como disponible. No se muestran los motivos.</p>
+  <p class="note" id="evnote"></p>
+  <p class="note" id="nfnote" hidden></p>
+</div>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>
+const DATA = __DATA__;
+const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const MESL=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIA=['dom','lun','mar','mié','jue','vie','sáb'];
+const DIAL=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const DIA2=['Do','Lu','Ma','Mi','Ju','Vi','Sá'];
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const D=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(Date.UTC(y,m-1,d));};
+const iso=dt=>dt.toISOString().slice(0,10);
+const add=(s,n)=>{const d=D(s);d.setUTCDate(d.getUTCDate()+n);return iso(d);};
+const diff=(a,b)=>Math.round((D(b)-D(a))/864e5);
+const dow=s=>D(s).getUTCDay();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const _n=new Date();
+const TODAY=`${_n.getFullYear()}-${pad(_n.getMonth()+1)}-${pad(_n.getDate())}`;
+const YEAR=_n.getFullYear();
+const store={get(k,d){try{const v=localStorage.getItem('disp.'+k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
+             set(k,v){try{localStorage.setItem('disp.'+k,JSON.stringify(v));}catch(e){}}};
+
+function fmtDay(s,withDow=true){const d=D(s);let t=`${d.getUTCDate()} ${MES[d.getUTCMonth()]}`;if(d.getUTCFullYear()!==YEAR)t+=` ${d.getUTCFullYear()}`;return withDow?`${DIA[d.getUTCDay()]} ${t}`:t;}
+function fmtRange(a,b){
+  if(a===b)return fmtDay(a);
+  const A=D(a),B=D(b),yb=B.getUTCFullYear()!==YEAR?` ${B.getUTCFullYear()}`:'';
+  if(A.getUTCMonth()===B.getUTCMonth()&&A.getUTCFullYear()===B.getUTCFullYear())return `${A.getUTCDate()}–${B.getUTCDate()} ${MES[B.getUTCMonth()]}${yb}`;
+  const ya=A.getUTCFullYear()!==B.getUTCFullYear()?` ${A.getUTCFullYear()}`:'';
+  return `${A.getUTCDate()} ${MES[A.getUTCMonth()]}${ya} – ${B.getUTCDate()} ${MES[B.getUTCMonth()]}${yb}`;
+}
+function partLabel(ps,pe){return ps&&pe?`${ps}–${pe}`:ps?`desde ${ps}`:`hasta ${pe}`;}
+function blockText(x){
+  const [sd,ed,ps,pe]=x;
+  if(sd===ed)return fmtDay(sd)+(ps||pe?` · ${partLabel(ps,pe)}`:'');
+  return fmtRange(sd,ed)+(ps?` · sale ${ps}`:'')+(pe?` · regresa ${pe}`:'');
+}
+function dur(x){const n=diff(x[0],x[1])+1;return n>1?`${n} días`:(x[2]||x[3]?'Parte del día':'Todo el día');}
+function nextDow(t){let d=TODAY;while(dow(d)!==t)d=add(d,1);return d;}
+const weekOf=s=>add(s,-dow(s));
+
+// ---- eventos (del Calendario de Eventos) ----
+const normEv=e=>({n:e.nombre||'Evento',s:e.inicio,e:e.fin||e.inicio,pub:e.publico||'iglesia',grp:e.grupo||'',tent:!!e.tentativo});
+let EVENTS=(DATA.ev||[]).filter(e=>e.inicio).map(normEv), EVUPD=DATA.evUpd||'', EVLIVE=false;
+const evOn=d=>EVENTS.filter(e=>e.s<=d&&e.e>=d);
+const evIn=(a,b)=>EVENTS.filter(e=>e.e>=a&&e.s<=b).sort((x,y)=>x.s<y.s?-1:x.s>y.s?1:0);
+const audLabel=e=>e.pub==='grupo'?('Grupo'+(e.grp?': '+e.grp:' específico')):'Toda la iglesia';
+const evDate=e=>e.s===e.e?fmtDay(e.s):fmtRange(e.s,e.e);
+function evNote(){
+  const el=$('#evnote');
+  if(!EVENTS.length){el.textContent='Eventos: no se pudieron cargar del Calendario de Eventos.';return;}
+  el.textContent=`Eventos: tomados ${EVLIVE?'en vivo ':''}del Calendario de Eventos${EVUPD?` (actualizado ${fmtDay(EVUPD,false)})`:''}. Si cambian allá, se ven aquí al recargar.`;
+}
+async function loadLiveEvents(){
+  if(!DATA.evUrl)return;
+  try{
+    const r=await fetch(DATA.evUrl+(DATA.evUrl.includes('?')?'&':'?')+'t='+Date.now(),{cache:'no-store'});
+    if(!r.ok)return;
+    const j=await r.json();
+    if(!Array.isArray(j.eventos))return;
+    EVENTS=j.eventos.filter(e=>e.inicio).map(normEv);EVUPD=j.actualizado||EVUPD;EVLIVE=true;
+    evNote();renderKpis();setTab(tab,true);
+  }catch(e){}
+}
+
+// ---- personas y mapa de días ----
+const people=DATA.p.map((p,i)=>{
+  const map={};
+  p.b.forEach(x=>{
+    const [sd,ed,ps,pe]=x;
+    const last=ed>DATA.end?DATA.end:ed;
+    for(let d=sd<DATA.start?DATA.start:sd;d<=last;d=add(d,1)){
+      const partial=(d===sd&&!!ps)||(d===ed&&!!pe);
+      const lab=!partial?'':sd===ed?partLabel(ps,pe):(d===sd?`desde ${ps}`:`hasta ${pe}`);
+      const cur=map[d];
+      if(!cur)map[d]={partial,lab};
+      else if(cur.partial){if(!partial)map[d]={partial:false,lab:''};else cur.lab+=', '+lab;}
+    }
+  });
+  return {...p,i,map};
+});
+const GROUPS=DATA.groups.map((n,i)=>({n,i,short:n.replace(/^Equipo\s+/i,''),count:people.filter(p=>p.g===i).length})).filter(g=>g.count);
+let gsel=store.get('g',-1); if(!GROUPS.some(g=>g.i===gsel))gsel=-1;
+const shownGroups=()=>gsel<0?GROUPS:GROUPS.filter(g=>g.i===gsel);
+const vis=()=>people.filter(p=>gsel<0||p.g===gsel);
+const groupShort=i=>(GROUPS.find(g=>g.i===i)||{short:''}).short;
+// quién está fuera en algún día del evento (dentro del rango a..b si se da)
+function missers(e,a,b){
+  const s=a&&a>e.s?a:e.s,t=b&&b<e.e?b:e.e,out=[];
+  vis().forEach(p=>{let any=false,full=false;
+    for(let d=s;d<=t;d=add(d,1)){const m=p.map[d];if(m){any=true;if(!m.partial)full=true;}}
+    if(any)out.push({p,full});});
+  return out;
+}
+// eventos que una persona se pierde en un rango
+function missedBy(p,a,b){return evIn(a,b).filter(e=>{const s=a>e.s?a:e.s,t=b<e.e?b:e.e;for(let d=s;d<=t;d=add(d,1))if(p.map[d])return true;return false;});}
+
+// ---- resumen ----
+function renderKpis(){
+  const sun=nextDow(0),wed=nextDow(3),v=vis(),end=add(TODAY,27);
+  const outOn=d=>v.filter(p=>p.map[d]).length;
+  const n4=v.filter(p=>p.b.some(x=>x[1]>=TODAY&&x[0]<=end)).length;
+  const cards=[
+    {n:outOn(sun),l:(sun===TODAY?'No disponibles hoy domingo':'No disponibles este domingo'),s:fmtDay(sun),go:()=>goAvail(sun,sun)},
+    {n:outOn(wed),l:(wed===TODAY?'No disponibles hoy miércoles':'No disponibles este miércoles'),s:fmtDay(wed),go:()=>goAvail(wed,wed)},
+    {n:n4,l:'Con alguna ausencia',s:'próximas 4 semanas',go:()=>setTab('up')}];
+  const box=$('#kpis');box.innerHTML='';
+  cards.forEach(c=>{const b=document.createElement('button');b.className='kpi';
+    b.innerHTML=`<div class="n${c.n?' has':''}">${c.n}</div><div class="l">${c.l}</div><div class="s">${c.s}</div>`;
+    b.onclick=c.go;box.appendChild(b);});
+}
+
+// ---- vista de calendario (meses) ----
+function outList(d){
+  return vis().filter(p=>p.map[d]).map(p=>{const s=p.map[d],x=p.b.find(x=>x[0]<=d&&x[1]>=d);
+    return {p,partial:s.partial,sub:s.partial?s.lab:(x&&x[0]!==x[1]?fmtRange(x[0],x[1]):'Todo el día')};});
+}
+function renderYear(){
+  let h='',m=TODAY.slice(0,7);
+  const svcD=w=>w===0||w===3;
+  while(m<=lastMonth){
+    const [y,mo]=m.split('-').map(Number),nd=new Date(Date.UTC(y,mo,0)).getUTCDate(),first=`${m}-01`,lead=dow(first);
+    let cells='',daysOut=0;
+    for(let k=0;k<lead;k++)cells+='<span class="day empty"></span>';
+    for(let k=1;k<=nd;k++){
+      const d=`${m}-${pad(k)}`,w=dow(d),ol=outList(d),c=['day'];
+      if(svcD(w))c.push('svc');if(d<TODAY)c.push('past');if(d===TODAY)c.push('today');
+      const evs=evOn(d);if(evs.length){c.push('ev');if(evs.every(e=>e.tent))c.push('tent');}
+      const full=ol.filter(o=>!o.partial).length;
+      if(ol.length){if(d>=TODAY)daysOut++;
+        if(!full)c.push('op');else c.push(ol.length>=3?'o3':ol.length===2?'o2':'o1');}
+      const lab=`${DIAL[w]} ${k} de ${MESL[mo-1]}: `+(evs.length?evs.map(e=>e.n).join(', ')+'. ':'')+(ol.length?ol.map(o=>o.p.n).join(', ')+' fuera':'todos disponibles');
+      cells+=`<button class="${c.join(' ')}" data-d="${d}" aria-label="${esc(lab)}">${k}</button>`;
+    }
+    h+=`<div class="month"><div class="mhead"><h3>${MESL[mo-1]} ${y}</h3><span class="mstat${daysOut?' has':''}">${daysOut?`${daysOut} ${daysOut===1?'día':'días'} con ausencias`:'Todos disponibles'}</span></div>
+      <div class="dow">${DIA2.map((s,i)=>`<span class="${svcD(i)?'svc':''}">${s[0]}</span>`).join('')}</div><div class="grid">${cells}</div></div>`;
+    const nx=new Date(Date.UTC(y,mo,1));m=iso(nx).slice(0,7);
+  }
+  $('#months').innerHTML=h;
+}
+const tipEl=$('#tip');
+const canHover=window.matchMedia('(hover: hover)').matches;
+if(!canHover)$('#yrhint').textContent='Toca un día para ver quién está fuera.';
+function showTip(cell){
+  const d=cell.dataset.d,w=dow(d),ol=outList(d),dd=D(d);
+  let h=`<div class="t-date">${DIAL[w][0].toUpperCase()+DIAL[w].slice(1)} ${dd.getUTCDate()} de ${MESL[dd.getUTCMonth()]}</div>`;
+  const evs=evOn(d);
+  if(evs.length){h+=`<div class="t-h e">Evento${evs.length>1?'s':''}</div>`;
+    evs.forEach(e=>{h+=`<div class="t-ev"><i class="e${e.tent?' tent':''}"></i><div><b>${esc(e.n)}</b><span class="t-sub">${e.s!==e.e?fmtRange(e.s,e.e)+' · ':''}${esc(audLabel(e))}${e.tent?' · tentativo':''}</span></div></div>`;});}
+  if(ol.length){h+=`<div class="t-h">${evs.length?'Fuera · se lo pierden':'Fuera'} · ${ol.length}</div>`;
+    ol.forEach(o=>{h+=`<div class="t-ev"><i class="${o.partial?'pt':''}"></i><div><b>${esc(o.p.n)}</b><span class="t-sub">${esc(o.sub)}</span></div></div>`;});}
+  else h+='<div class="t-sub">Todos disponibles</div>';
+  if(w===0)h+='<div class="t-meta">Servicio dominical</div>';
+  if(w===3)h+='<div class="t-meta">Servicio Entre Semana</div>';
+  tipEl.innerHTML=h;
+  const r=cell.getBoundingClientRect(),tw=tipEl.offsetWidth,th=tipEl.offsetHeight;
+  let x=r.left+r.width/2-tw/2,y=r.top-th-8;
+  if(y<8)y=r.bottom+8;
+  x=Math.max(8,Math.min(x,window.innerWidth-tw-8));
+  tipEl.style.left=x+'px';tipEl.style.top=y+'px';tipEl.classList.add('show');
+}
+const hideTip=()=>tipEl.classList.remove('show');
+if(canHover){
+  $('#months').addEventListener('mouseover',e=>{const c=e.target.closest('.day:not(.empty)');if(c)showTip(c);else hideTip();});
+  $('#months').addEventListener('mouseleave',hideTip);
+  window.addEventListener('scroll',hideTip,{passive:true});
+}
+$('#months').addEventListener('click',e=>{const c=e.target.closest('.day:not(.empty)');if(c){hideTip();goAvail(c.dataset.d,c.dataset.d);}});
+
+// ---- calendario por persona ----
+const firstMonth=DATA.start.slice(0,7),lastMonth=DATA.end.slice(0,7);
+let cm=TODAY.slice(0,7); if(cm<firstMonth)cm=firstMonth; if(cm>lastMonth)cm=lastMonth;
+function shiftMonth(n){const [y,m]=cm.split('-').map(Number);const d=new Date(Date.UTC(y,m-1+n,1));cm=iso(d).slice(0,7);renderCal();}
+function renderCal(){
+  const [y,m]=cm.split('-').map(Number);
+  const nd=new Date(Date.UTC(y,m,0)).getUTCDate();
+  const days=[...Array(nd)].map((_,k)=>`${cm}-${pad(k+1)}`);
+  $('#mlabel').textContent=`${MESL[m-1]} ${y}`;
+  $('#mprev').disabled=cm<=firstMonth; $('#mnext').disabled=cm>=lastMonth;
+  const svc=d=>{const w=dow(d);return w===0||w===3;};
+  let h='<table class="mx"><thead><tr><th class="nm">Persona</th>';
+  days.forEach(d=>{const c=['d'];if(svc(d))c.push('svc');if(d===TODAY)c.push('today');
+    h+=`<th class="${c.join(' ')}" data-d="${d}" title="Ver quién está disponible el ${fmtDay(d)}"><span>${DIA2[dow(d)]}</span><b>${+d.slice(8)}</b></th>`;});
+  h+='</tr></thead><tbody>';
+  if(EVENTS.length){
+    h+='<tr class="evrow"><th class="nm">Eventos</th>';
+    days.forEach((d,k)=>{const evs=evOn(d),c=[];if(svc(d))c.push('svc');if(d<TODAY)c.push('past');
+      let tip=`${fmtDay(d)} · Sin eventos`;
+      if(evs.length){c.push('e');if(evs.every(e=>e.tent))c.push('tent');
+        if(k>0&&evOn(add(d,-1)).length)c.push('jl');if(k<nd-1&&evOn(add(d,1)).length)c.push('jr');
+        tip=`${fmtDay(d)} · ${evs.map(e=>e.n+(e.tent?' (tentativo)':'')).join(', ')}`;}
+      h+=`<td class="${c.join(' ')}" data-d="${d}" title="${esc(tip)}"><i></i></td>`;});
+    h+='</tr>';
+  }
+  shownGroups().forEach(g=>{
+    h+=`<tr class="gh"><th colspan="${nd+1}"><span>${esc(g.n)}</span></th></tr>`;
+    people.filter(p=>p.g===g.i).forEach(p=>{
+      h+=`<tr${p.ok?'':' class="nf"'}><th class="nm" title="${esc(p.n)}">${esc(p.n)}</th>`;
+      days.forEach((d,k)=>{
+        const s=p.map[d],c=[];if(svc(d))c.push('svc');if(d<TODAY)c.push('past');
+        let tip=`${p.n} · ${fmtDay(d)} · `;
+        if(s){c.push(s.partial?'p':'x');const ev=evOn(d);if(ev.length){c.push('miss');}
+          if(k>0&&p.map[add(d,-1)])c.push('jl');
+          if(k<nd-1&&p.map[add(d,1)])c.push('jr');
+          tip+=s.partial?`No disponible ${s.lab}`:'No disponible';
+          const ev2=evOn(d);if(ev2.length)tip+=` · se pierde: ${ev2.map(e=>e.n).join(', ')}`;}
+        else tip+=p.ok?'Disponible':'Sin datos de Planning Center';
+        h+=`<td class="${c.join(' ')}" data-d="${d}" title="${esc(tip)}"><i></i></td>`;
+      });
+      h+='</tr>';
+    });
+  });
+  const v=vis();
+  h+='<tr class="tot"><th class="nm">Ausentes</th>';
+  days.forEach(d=>{const n=v.filter(p=>p.map[d]).length;h+=`<td class="${n?'has':''}${svc(d)?' svc':''}" data-d="${d}">${n||'·'}</td>`;});
+  h+='</tr></tbody></table>';
+  $('#mx').innerHTML=h;
+}
+$('#mx').addEventListener('click',e=>{const t=e.target.closest('[data-d]');if(t)goAvail(t.dataset.d,t.dataset.d);});
+$('#mprev').onclick=()=>shiftMonth(-1);$('#mnext').onclick=()=>shiftMonth(1);
+$('#mtoday').onclick=()=>{cm=TODAY.slice(0,7);renderCal();};
+
+// ---- ¿quién está disponible? ----
+let A=nextDow(0),B=A;
+function goAvail(a,b){A=a;B=b;setTab('av');}
+function renderAvail(){
+  if(B<A)[A,B]=[B,A];
+  $('#from').value=A;$('#to').value=B;
+  const sun=nextDow(0),wed=nextDow(3),sun2=add(sun,7);
+  const chips=[['Este domingo',sun,sun],['Este miércoles',wed,wed],['Próximo domingo',sun2,sun2],['Próximos 7 días',TODAY,add(TODAY,6)]];
+  $('#chips').innerHTML=chips.map(([l,a,b])=>`<button class="btn${a===A&&b===B?' on':''}" data-a="${a}" data-b="${b}">${l}</button>`).join('');
+  $('#when').textContent=A===B?`${DIAL[dow(A)]} ${fmtDay(A,false)}`:`Del ${fmtDay(A)} al ${fmtDay(B)}`;
+  let h='';
+  const evr=evIn(A,B);
+  if(evr.length)h+=`<section class="panel evpanel"><h2>Eventos en ${A===B?'este día':'estas fechas'}</h2><ul>${evr.map(e=>`<li><b>${esc(e.n)}</b><small>${esc(evDate(e))} · ${esc(audLabel(e))}${e.tent?' · tentativo':''}</small></li>`).join('')}</ul></section>`;
+  shownGroups().forEach(g=>{
+    const out=[],inn=[],nf=[];
+    people.filter(p=>p.g===g.i).forEach(p=>{
+      if(!p.ok){nf.push(p);return;}
+      const bl=p.b.filter(x=>x[1]>=A&&x[0]<=B);
+      if(!bl.length){inn.push(p);return;}
+      let full=false;for(let d=A;d<=B;d=add(d,1))if(p.map[d]&&!p.map[d].partial){full=true;break;}
+      out.push({p,bl,full});
+    });
+    h+=`<section class="panel"><h2>${esc(g.n)}</h2><div class="cols"><div>
+      <h3 class="o">No disponibles <span class="ct">${out.length}</span></h3><ul class="pl">`;
+    h+=out.length?out.map(o=>{const ms=missedBy(o.p,A,B);return `<li><b>${esc(o.p.n)}${o.full?'':'<span class="tag">Parte del día</span>'}</b><small>${o.bl.map(x=>esc(blockText(x))).join('<br>')}</small>${ms.length?`<span class="missl">Se pierde: ${ms.map(e=>esc(e.n)).join(', ')}</span>`:''}</li>`;}).join('')
+                 :'<li class="empty">Nadie tiene blockout en estas fechas.</li>';
+    h+=`</ul></div><div><h3 class="a">Disponibles <span class="ct">${inn.length}</span></h3><ul class="pl">`;
+    h+=inn.length?inn.map(p=>`<li><b>${esc(p.n)}</b></li>`).join(''):'<li class="empty">Nadie disponible.</li>';
+    h+='</ul></div></div>';
+    if(nf.length)h+=`<p class="nfn">Sin datos de Planning Center: ${nf.map(p=>esc(p.n)).join(', ')}.</p>`;
+    h+='</section>';
+  });
+  $('#avres').innerHTML=h;
+}
+$('#chips').addEventListener('click',e=>{const b=e.target.closest('button');if(b){A=b.dataset.a;B=b.dataset.b;renderAvail();}});
+$('#from').addEventListener('change',e=>{if(!e.target.value)return;A=e.target.value;if(B<A)B=A;renderAvail();});
+$('#to').addEventListener('change',e=>{if(!e.target.value)return;B=e.target.value;if(B<A)A=B;renderAvail();});
+
+// ---- próximas ausencias ----
+function renderUp(){
+  const end=add(TODAY,55),items=[];
+  vis().forEach(p=>p.b.forEach(x=>{if(x[1]>=TODAY&&x[0]<=end)items.push({p,x});}));
+  items.sort((a,b)=>a.x[0]<b.x[0]?-1:a.x[0]>b.x[0]?1:a.p.n.localeCompare(b.p.n));
+  if(!items.length){$('#uplist').innerHTML='<div class="panel">No hay ausencias registradas en las próximas 8 semanas.</div>';return;}
+  const thisWk=weekOf(TODAY);let h='',cur=null;
+  items.forEach(({p,x})=>{
+    const wk=weekOf(x[0]<TODAY?TODAY:x[0]);
+    if(wk!==cur){if(cur!==null)h+='</ul>';cur=wk;
+      h+=`<h3 class="wkh">${wk===thisWk?'Esta semana':wk===add(thisWk,7)?'Próxima semana':'Semana del '+fmtDay(wk,false)}</h3><ul class="up">`;}
+    const gc=GROUPS.length>1&&gsel<0?`<span class="gc">${esc(groupShort(p.g))}</span>`:'';
+    const now=x[0]<TODAY?'<span class="tag">En curso</span>':'';
+    const ms=missedBy(p,x[0]<TODAY?TODAY:x[0],x[1]);
+    h+=`<li><span class="nm">${esc(p.n)}${gc}</span><span class="wh">${esc(blockText(x))}${now}${ms.length?`<span class="missl">Se pierde: ${ms.map(e=>esc(e.n)).join(', ')}</span>`:''}</span><span class="dur">${dur(x)}</span></li>`;
+  });
+  $('#uplist').innerHTML=h+'</ul>';
+}
+
+// ---- eventos: quién se los pierde ----
+let evOnly=store.get('evonly',false);
+$('#evonly').checked=evOnly;
+$('#evonly').addEventListener('change',e=>{evOnly=e.target.checked;store.set('evonly',evOnly);renderEvTab();});
+function renderEvTab(){
+  if(!EVENTS.length){$('#evlist').innerHTML='<div class="panel">No se pudieron cargar los eventos del Calendario de Eventos.</div>';return;}
+  let list=EVENTS.filter(e=>e.e>=TODAY&&e.s<=DATA.end).sort((x,y)=>x.s<y.s?-1:x.s>y.s?1:0).map(e=>({e,m:missers(e,e.s<TODAY?TODAY:null,null)}));
+  if(evOnly)list=list.filter(o=>o.m.length);
+  if(!list.length){$('#evlist').innerHTML=`<div class="panel">${evOnly?'Nadie está fuera en los próximos eventos.':'No hay eventos próximos en el calendario.'}</div>`;return;}
+  let h='',cur=null;
+  list.forEach(({e,m})=>{
+    const mk=e.s<TODAY?TODAY.slice(0,7):e.s.slice(0,7);
+    if(mk!==cur){if(cur!==null)h+='</ul>';cur=mk;const [y,mo]=mk.split('-').map(Number);h+=`<h3 class="wkh" style="text-transform:capitalize">${MESL[mo-1]} ${y}</h3><ul class="evs">`;}
+    const who=m.length?`<span class="outt">Fuera · ${m.length}</span>${m.map(o=>esc(o.p.n)+(o.full?'':' <small>(parte del día)</small>')).join(', ')}`:'<span class="okt">Todos disponibles</span>';
+    h+=`<li><div class="en"><i class="${e.tent?'tent':''}"></i><div><b>${esc(e.n)}</b><small>${esc(evDate(e))} · ${esc(audLabel(e))}${e.tent?' · tentativo':''}</small></div></div><div class="who">${who}</div></li>`;
+  });
+  $('#evlist').innerHTML=h+'</ul>';
+}
+
+// ---- grupo, pestañas, arranque ----
+function renderSeg(){
+  const seg=$('#seg');
+  if(GROUPS.length<2){seg.hidden=true;return;}
+  const opts=[{i:-1,short:'Todos'},...GROUPS];
+  seg.innerHTML=opts.map(o=>`<button data-g="${o.i}" aria-pressed="${o.i===gsel}">${esc(o.short)}</button>`).join('');
+}
+$('#seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;gsel=+b.dataset.g;store.set('g',gsel);renderAll();});
+let tab=store.get('t','yr'); if(!['yr','cal','ev','av','up'].includes(tab))tab='yr';
+function setTab(t,quiet){tab=t;store.set('t',t);
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
+  ['yr','cal','ev','av','up'].forEach(k=>$('#v-'+k).hidden=k!==t);
+  if(t==='yr')renderYear();if(t==='cal')renderCal();if(t==='ev')renderEvTab();if(t==='av')renderAvail();if(t==='up')renderUp();
+  if(t==='av'&&!quiet)window.scrollTo({top:$('.bar2').offsetTop-8,behavior:'smooth'});
+}
+document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setTab(b.dataset.t);});
+function renderAll(){renderSeg();renderKpis();setTab(tab);}
+if(DATA.demo)$('#demo').hidden=false;
+const nf=people.filter(p=>!p.ok);
+if(nf.length){const n=$('#nfnote');n.hidden=false;n.textContent=`No se encontraron en Planning Center: ${nf.map(p=>p.n).join(', ')}. Revisa cómo aparece su nombre en equipo.json.`;}
+renderSeg();renderKpis();
+document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===tab));
+['yr','cal','ev','av','up'].forEach(k=>$('#v-'+k).hidden=k!==tab);
+if(tab==='yr')renderYear();if(tab==='cal')renderCal();if(tab==='ev')renderEvTab();if(tab==='av')renderAvail();if(tab==='up')renderUp();
+evNote();loadLiveEvents();
+</script>
+</body>
+</html>
