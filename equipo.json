@@ -4,21 +4,108 @@
     {
       "nombre": "Equipo Pastoral",
       "personas": [
-        { "nombre": "Eduardo Gonzalez" },
-        { "nombre": "Kathya Gonzalez", "alias": ["Kathya Garro"] },
-        { "nombre": "Daniel Chaves" },
-        { "nombre": "Andrea Chaves", "alias": ["Andrea Garro"] },
-        { "nombre": "Israel Pereira" },
-        { "nombre": "Karelys Pereira" },
-        { "nombre": "Roy Reyes Jr." },
-        { "nombre": "Jasmina Reyes" },
-        { "nombre": "Raphael Serrano" },
-        { "nombre": "Myraida Lopez", "alias": ["Myraida Serrano"] }
+        {
+          "nombre": "Eduardo Gonzalez"
+        },
+        {
+          "nombre": "Kathya Gonzalez",
+          "alias": [
+            "Kathya Garro"
+          ]
+        },
+        {
+          "nombre": "Daniel Chaves"
+        },
+        {
+          "nombre": "Andrea Chaves",
+          "alias": [
+            "Andrea Garro"
+          ]
+        },
+        {
+          "nombre": "Israel Pereira"
+        },
+        {
+          "nombre": "Karelys Pereira"
+        },
+        {
+          "nombre": "Roy Reyes Jr."
+        },
+        {
+          "nombre": "Jasmina Reyes"
+        },
+        {
+          "nombre": "Raphael Serrano"
+        },
+        {
+          "nombre": "Myraida Lopez",
+          "alias": [
+            "Myraida Serrano"
+          ]
+        }
       ]
     },
     {
-      "nombre": "Equipo Ministerial",
-      "personas": []
+      "nombre": "Equipos",
+      "personas": [
+        {
+          "nombre": "Anais Valentin"
+        },
+        {
+          "nombre": "Andrey Avila"
+        },
+        {
+          "nombre": "Asalia Vega"
+        },
+        {
+          "nombre": "Diana Valenzuela"
+        },
+        {
+          "nombre": "Eddie Diaz"
+        },
+        {
+          "nombre": "Ellizon Torres"
+        },
+        {
+          "nombre": "Edgardo Vega",
+          "alias": [
+            "Guillermo Vega"
+          ]
+        },
+        {
+          "nombre": "Jeffrey Martinez"
+        },
+        {
+          "nombre": "Jesus Jaimes"
+        },
+        {
+          "nombre": "Josue Valenzuela"
+        },
+        {
+          "nombre": "Julianna Gonzalez"
+        },
+        {
+          "nombre": "Karina Avila"
+        },
+        {
+          "nombre": "Monica Gonzalez"
+        },
+        {
+          "nombre": "Nadja Diaz"
+        },
+        {
+          "nombre": "Neidy Serrano"
+        },
+        {
+          "nombre": "Oyuki Gabriel"
+        },
+        {
+          "nombre": "Stephany Torres"
+        },
+        {
+          "nombre": "Sallymarie Torres"
+        }
+      ]
     }
   ]
 }
